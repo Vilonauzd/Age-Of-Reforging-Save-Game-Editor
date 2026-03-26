@@ -1,4 +1,3 @@
-<div align="center">
 # Age of Reforging: The Freelands - Save Game Editor
 ![Version](https://img.shields.io/badge/version-4.0.1-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
@@ -9,7 +8,6 @@
 
 [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Contributing](#-contributing)
 
-</div>
 
 ---
 
