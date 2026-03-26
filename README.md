@@ -46,7 +46,7 @@ Save editing for this game was previously done through manual JSON editing. This
 ---
 
 
-## 📦 Installation
+##  Installation
 
 ### Requirements
 
@@ -89,11 +89,11 @@ PySide6>=6.5.0
 ### Terminal Console
 
 The top section shows a **live log** of all actions:
-- 🟢 **Green** = Success operations
-- 🟡 **Yellow** = Warnings
-- 🔴 **Red** = Errors
-- 🔵 **Cyan** = Info messages
-- 🟣 **Magenta** = Value changes
+-  **Green** = Success operations
+-  **Yellow** = Warnings
+-  **Red** = Errors
+-  **Cyan** = Info messages
+-  **Magenta** = Value changes
 
 ### Item Database
 
@@ -115,7 +115,7 @@ Navigate to the **Quick Cheats** tab for one-click modifications:
 
 ---
 
-## 📁 File Structure
+##  File Structure
 
 ```
 reforge-save-editor/
@@ -302,7 +302,7 @@ SOFTWARE.
 
 <div align="center">
 
-**Made with ❤️ by the Age of Reforging Community**
+**Made with love by the Age of Reforging Community**
 
 [⬆ Back to Top](#age-of-reforging-the-freelands---save-game-editor)
 
