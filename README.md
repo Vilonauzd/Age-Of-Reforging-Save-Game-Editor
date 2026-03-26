@@ -58,7 +58,7 @@ Save editing for this game was previously done through manual JSON editing. This
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/reforge-save-editor.git
+git clone https://github.com/Vilonauzd/reforge-save-editor.git
 cd reforge-save-editor
 
 # 2. Install dependencies
