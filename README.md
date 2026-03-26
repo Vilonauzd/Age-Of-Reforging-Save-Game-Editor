@@ -223,22 +223,6 @@ git push origin feature/your-feature-name
 
 ---
 
-##  Screenshots
-
-### Main Editor Interface
-![Main Editor](screenshots/main_editor.png)
-
-### Terminal Console (Change Logging)
-![Terminal Console](screenshots/terminal_console.png)
-
-### Item Database Tab
-![Item Database](screenshots/item_database.png)
-
-### Quick Cheats Tab
-![Quick Cheats](screenshots/quick_cheats.png)
-
----
-
 ##  Credits
 
 ### Original Development
