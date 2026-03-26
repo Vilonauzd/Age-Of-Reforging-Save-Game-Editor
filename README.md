@@ -29,8 +29,10 @@ Save editing for this game was previously done through manual JSON editing. This
 - ✅ Open source for community contributions
 
 ---
+<div align="center">
 <img width="1756" height="1164" alt="image" src="https://github.com/user-attachments/assets/2ed28339-93ae-43b0-a8b4-6c88242001b4" />
-##  Features
+</div>
+   ##  Features
 
 | Feature | Description |
 |---------|-------------|
