@@ -15,11 +15,11 @@
 
 ---
 
-## 📖 About
+##  About
 
 This is a **community-driven save game editor** for *Age of Reforging: The Freelands*. It allows players to view, edit, and manage their save files with an intuitive graphical interface. Built with Python and PySide6, it features automatic item discovery, character stat editing, inventory management, and real-time change logging.
 
-### 🎯 Why This Exists
+###  Why This Exists
 
 Save editing for this game was previously done through manual JSON editing. This tool makes it **accessible to all players** with:
 - ✅ No manual JSON editing required
@@ -30,20 +30,20 @@ Save editing for this game was previously done through manual JSON editing. This
 
 ---
 
-## ✨ Features
+##  Features
 
 | Feature | Description |
 |---------|-------------|
-| 🎮 **Auto Save Detection** | Automatically finds all save slots from AppData |
-| 👥 **Character Editor** | Edit all character stats, skills, vitals, and more |
-| 🎒 **Inventory Management** | View and edit items with ID-to-name lookup |
-| 🗄️ **Item Database** | Auto-discovers items from saves, community-expandable |
-| 📝 **Terminal Console** | Real-time logging of all changes made |
-| 💾 **Auto Backup** | Creates timestamped backups before every save |
-| ⚡ **Quick Cheats** | One-click buttons for common modifications |
-| 📊 **Raw JSON Editor** | Advanced users can edit raw save data |
-| 📤 **Export/Import** | Export item database to CSV for sharing |
-| 🎨 **Dark Theme** | Easy on the eyes for long editing sessions |
+|  **Auto Save Detection** | Automatically finds all save slots from AppData |
+|  **Character Editor** | Edit all character stats, skills, vitals, and more |
+|  *Inventory Management** | View and edit items with ID-to-name lookup |
+|  **Item Database** | Auto-discovers items from saves, community-expandable |
+|  **Terminal Console** | Real-time logging of all changes made |
+|  **Auto Backup** | Creates timestamped backups before every save |
+|  **Quick Cheats** | One-click buttons for common modifications |
+|  **Raw JSON Editor** | Advanced users can edit raw save data |
+|  **Export/Import** | Export item database to CSV for sharing |
+|  **Dark Theme** | Easy on the eyes for long editing sessions |
 
 ---
 
@@ -77,7 +77,7 @@ PySide6>=6.5.0
 
 ---
 
-## 🚀 Usage
+##  Usage
 
 ### First Launch
 
@@ -138,7 +138,7 @@ C:\Users\<USERNAME>\AppData\LocalLow\PersonaeGames\Age of Reforging The Freeland
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 We welcome contributions from the community! Here's how you can help:
 
@@ -147,11 +147,11 @@ We welcome contributions from the community! Here's how you can help:
 | Contribution Type | How to Help |
 |------------------|-------------|
 |  **Item Names** | Play the game, note item IDs, submit to database |
-| 🐛 **Bug Reports** | Open issues with steps to reproduce |
-| 💡 **Feature Requests** | Suggest new features via GitHub Issues |
-| 🔧 **Code Contributions** | Submit pull requests with improvements |
-| 📖 **Documentation** | Improve README, add tutorials, fix typos |
-| 🌍 **Translations** | Help translate the editor to other languages |
+|  **Bug Reports** | Open issues with steps to reproduce |
+|  **Feature Requests** | Suggest new features via GitHub Issues |
+|  **Code Contributions** | Submit pull requests with improvements |
+|  **Documentation** | Improve README, add tutorials, fix typos |
+|  **Translations** | Help translate the editor to other languages |
 
 ### Item Database Contribution
 
@@ -201,7 +201,7 @@ git push origin feature/your-feature-name
 
 ---
 
-## ⚠️ Known Limitations
+##  Known Limitations
 
 | Limitation | Workaround |
 |-----------|------------|
@@ -212,9 +212,9 @@ git push origin feature/your-feature-name
 
 ---
 
-## 🛡️ Safety & Warnings
+##  Safety & Warnings
 
-> ⚠️ **IMPORTANT: Always backup your saves before editing!**
+>  **IMPORTANT: Always backup your saves before editing!**
 
 - The editor creates **automatic backups** before every save
 - Backups are stored in the `backups/` folder
@@ -224,7 +224,7 @@ git push origin feature/your-feature-name
 
 ---
 
-## 📸 Screenshots
+##  Screenshots
 
 ### Main Editor Interface
 ![Main Editor](screenshots/main_editor.png)
@@ -240,7 +240,7 @@ git push origin feature/your-feature-name
 
 ---
 
-## 🙏 Credits
+##  Credits
 
 ### Original Development
 - **Lead Developer**: [Your Name/GitHub Username]
@@ -257,14 +257,14 @@ git push origin feature/your-feature-name
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ```
 MIT License
 
-Copyright (c) 2024 Age of Reforging Save Editor Contributors
+Copyright (c) 2026 Age of Reforging Save Editor Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -287,7 +287,7 @@ SOFTWARE.
 
 ---
 
-## 📬 Contact & Support
+##  Contact & Support
 
 - **GitHub Issues**: [Report bugs or request features](https://github.com/YOUR_USERNAME/reforge-save-editor/issues)
 - **Discussions**: [Community discussions](https://github.com/YOUR_USERNAME/reforge-save-editor/discussions)
@@ -295,7 +295,7 @@ SOFTWARE.
 
 ---
 
-## 🗺️ Roadmap
+##  Roadmap
 
 ### v4.1.0 (Planned)
 - [ ] Full inventory add/remove/edit UI
