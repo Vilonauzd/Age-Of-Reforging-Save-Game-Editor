@@ -172,10 +172,10 @@ The item database (`item_database.json`) is community-maintained. To contribute:
 
 ```bash
 # Fork the repository
-git fork https://github.com/YOUR_USERNAME/reforge-save-editor.git
+git fork https://github.com/vilonauzd/reforge-save-editor.git
 
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/reforge-save-editor.git
+git clone https://github.com/vilonauzd/reforge-save-editor.git
 cd reforge-save-editor
 
 # Create a branch
@@ -226,7 +226,7 @@ git push origin feature/your-feature-name
 ##  Credits
 
 ### Original Development
-- **Lead Developer**: [Your Name/GitHub Username]
+- **Lead Developer**: [Jonathon Marshall/vilonauzd]
 - **Contributors**: See [CONTRIBUTORS.md](CONTRIBUTORS.md)
 
 ### Special Thanks
@@ -272,8 +272,8 @@ SOFTWARE.
 
 ##  Contact & Support
 
-- **GitHub Issues**: [Report bugs or request features](https://github.com/YOUR_USERNAME/reforge-save-editor/issues)
-- **Discussions**: [Community discussions](https://github.com/YOUR_USERNAME/reforge-save-editor/discussions)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/vilonauzd/reforge-save-editor/issues)
+- **Discussions**: [Community discussions](https://github.com/vilonauzd/reforge-save-editor/discussions)
 - **Steam Community**: [Age of Reforging Steam Forum](https://steamcommunity.com/app/YOUR_GAME_ID/discussions/)
 
 ---
