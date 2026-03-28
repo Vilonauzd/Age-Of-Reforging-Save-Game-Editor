@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Age of Reforging: The Freelands - Complete Save Game Editor v4.0.1
+Age of Reforging: The Freelands - Complete Save Game Editor v4.0.3
 ====================================================================
 Integrated Features:
 - Terminal-style console with real-time logging
@@ -15,8 +15,8 @@ Integrated Features:
 - Raw JSON editor
 - Dark theme UI
 
-Author: Integrated Development Team
-Version: 4.0.8
+Author: vilonauzd
+Version: 4.0.3
 """
 
 import sys
