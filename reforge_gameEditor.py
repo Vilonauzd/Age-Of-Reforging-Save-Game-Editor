@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Age of Reforging: The Freelands - Complete Save Game Editor v4.0.3
+Age of Reforging: The Freelands - Complete Save Game Editor v4.0.1
 ====================================================================
 Integrated Features:
 - Terminal-style console with real-time logging
@@ -15,8 +15,8 @@ Integrated Features:
 - Raw JSON editor
 - Dark theme UI
 
-Author: vilonauzd
-Version: 4.0.3
+Author: Integrated Development Team
+Version: 4.0.8
 """
 
 import sys
@@ -48,7 +48,7 @@ from PySide6.QtCore import Qt, Signal, Slot, QTimer, QFileSystemWatcher
 # CONFIGURATION
 # ==============================================================================
 
-EDITOR_VERSION = "4.0.8"
+EDITOR_VERSION = "4.0.9"
 EDITOR_NAME = "Age of Reforging - Complete Save Editor"
 
 # Save file location hint (runtime discovery handles user / character specific paths)
@@ -4422,6 +4422,109 @@ class PatchedSaveGameEditorV48(PatchedSaveGameEditorV45):
 
 
 
+class PatchedSaveGameEditorV49(PatchedSaveGameEditorV48):
+    """v4.9: force initial selected slot to load after discovery so first-open data populates reliably."""
+
+    def _deferred_activate_slot(self, index: int):
+        if index < 0 or index >= self.save_combo.count():
+            return
+        metadata = self.save_combo.itemData(index)
+        target_folder = metadata.get('save_folder') if isinstance(metadata, dict) else None
+        needs_load = (
+            not target_folder
+            or self.save_data is None
+            or self.current_save_folder is None
+            or str(self.current_save_folder) != str(target_folder)
+        )
+
+        if self.save_combo.currentIndex() != index:
+            self.save_combo.setCurrentIndex(index)
+            if not needs_load:
+                return
+
+        if needs_load:
+            self.on_save_selected(index)
+
+    def discover_saves(self):
+        self.refresh_detected_paths()
+        self.terminal.log_info("Scanning for save slots across detected save roots...")
+        previous_folder = None
+        if self.current_save_folder:
+            previous_folder = str(self.current_save_folder)
+        else:
+            current_meta = self.save_combo.currentData() if hasattr(self, 'save_combo') else None
+            if isinstance(current_meta, dict):
+                previous_folder = current_meta.get('save_folder')
+
+        self.save_combo.blockSignals(True)
+        self.save_combo.clear()
+
+        if not self.detected_save_roots:
+            self.save_combo.blockSignals(False)
+            attempted = "\n".join(str(path) for path in _candidate_save_roots())
+            self.terminal.log_error("No save roots detected")
+            self.status.showMessage("❌ No save roots detected")
+            QMessageBox.warning(
+                self,
+                "Save Roots Not Found",
+                f"No save roots were found. Checked:\n{attempted}\n\nPlease ensure the game has been launched and at least one save exists."
+            )
+            return
+
+        preferred_slots = []
+        fallback_slots = []
+        for save_root in self.detected_save_roots:
+            try:
+                character_dirs = [p for p in save_root.iterdir() if p.is_dir()]
+            except Exception as e:
+                self.terminal.log_warning(f"Skipping save root {save_root}: {e}")
+                continue
+            for character_dir in sorted(character_dirs, key=lambda p: p.name.lower()):
+                save_data_dir = character_dir / 'SaveData'
+                if not save_data_dir.exists() or not save_data_dir.is_dir():
+                    continue
+                slot_dirs = [p for p in save_data_dir.iterdir() if p.is_dir()]
+                for folder in slot_dirs:
+                    entry = self._build_slot_entry(save_root, character_dir, folder)
+                    if not entry:
+                        continue
+                    if entry['cache_like']:
+                        fallback_slots.append(entry)
+                    else:
+                        preferred_slots.append(entry)
+
+        slots = preferred_slots if preferred_slots else fallback_slots
+        slots.sort(key=lambda e: (e['cache_like'], -e['modified_ts'], e['label'].lower()))
+
+        selected_index = 0
+        for idx, entry in enumerate(slots):
+            self.save_combo.addItem(entry['label'], entry['metadata'])
+            self.terminal.log_success(f"Found save: {entry['label']}")
+            if previous_folder and entry['metadata'].get('save_folder') == previous_folder:
+                selected_index = idx
+
+        self.save_combo.blockSignals(False)
+        self.status.showMessage(f"Found {len(slots)} save slot(s)")
+        self.terminal.log_info(f"Total save slots found: {len(slots)}")
+        if fallback_slots and not preferred_slots:
+            self.terminal.log_warning("Only cache-like slot names were found; showing fallback candidates.")
+
+        if slots:
+            self.save_combo.setCurrentIndex(selected_index)
+            QTimer.singleShot(0, lambda idx=selected_index: self._deferred_activate_slot(idx))
+        else:
+            self.current_save_folder = None
+            self.current_save_path = None
+            self.save_data = None
+            self.original_data = None
+            self.current_character_data = None
+            self.current_character_index = None
+            self.char_tree.clear()
+            self.raw_json_text.clear()
+            self.inventory_text.clear()
+
+
+
 # ==============================================================================
 # MAIN ENTRY POINT
 # ==============================================================================
@@ -4432,7 +4535,7 @@ if __name__ == "__main__":
     app.setApplicationName(EDITOR_NAME)
     app.setApplicationVersion(EDITOR_VERSION)
 
-    window = PatchedSaveGameEditorV48()
+    window = PatchedSaveGameEditorV49()
     window.show()
 
     sys.exit(app.exec())
