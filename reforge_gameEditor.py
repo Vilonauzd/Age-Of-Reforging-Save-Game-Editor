@@ -16,7 +16,7 @@ Integrated Features:
 - Dark theme UI
 
 Author: vilonauzd
-Version: 4.0.8
+Version: 4.0.12
 """
 
 import sys
@@ -48,7 +48,7 @@ from PySide6.QtCore import Qt, Signal, Slot, QTimer, QFileSystemWatcher
 # CONFIGURATION
 # ==============================================================================
 
-EDITOR_VERSION = "4.0.9"
+EDITOR_VERSION = "4.0.12"
 EDITOR_NAME = "Age of Reforging - Complete Save Editor"
 
 # Save file location hint (runtime discovery handles user / character specific paths)
@@ -4525,6 +4525,235 @@ class PatchedSaveGameEditorV49(PatchedSaveGameEditorV48):
 
 
 
+class PatchedSaveGameEditorV50(PatchedSaveGameEditorV49):
+    EQUIPMENT_SLOT_NAMES = {
+        0: 'Mainhand',
+        1: 'Offhand',
+        2: 'Head',
+        3: 'Amulet',
+        4: 'Chest',
+        5: 'Relic',
+        6: 'Belt',
+        7: 'Legs',
+        8: '1st Ring',
+        9: '2nd Ring',
+    }
+
+    def _equipment_slot_name(self, index: int) -> str:
+        return self.EQUIPMENT_SLOT_NAMES.get(index, f'Slot {index}')
+
+    def create_inventory_tab(self) -> QWidget:
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+
+        db_info = QLabel(f"📦 Item Database: {len(self.item_db.items)} items loaded")
+        db_info.setStyleSheet('color: #3fb950; font-weight: bold;')
+        layout.addWidget(db_info)
+
+        search_layout = QHBoxLayout()
+        search_layout.addWidget(QLabel('🔍 Search:'))
+        self.item_search = QLineEdit()
+        self.item_search.setPlaceholderText('Search by name or paste an item ID from the inventory preview...')
+        self.item_search.textChanged.connect(self.search_items)
+        search_layout.addWidget(self.item_search, 1)
+        layout.addLayout(search_layout)
+
+        workflow_label = QLabel(
+            '💡 Easier rename workflow: click an equipped item row below or paste an item ID into Search, then click “Rename Item in DB”.'
+        )
+        workflow_label.setWordWrap(True)
+        workflow_label.setStyleSheet('color: #8b949e; font-style: italic;')
+        layout.addWidget(workflow_label)
+
+        self.item_table = QTableWidget()
+        self.item_table.setColumnCount(3)
+        self.item_table.setHorizontalHeaderLabels(['Item ID', 'Name', 'Category'])
+        self.item_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.item_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        self.item_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        self.item_table.setMaximumHeight(180)
+        self.item_table.cellClicked.connect(self.on_item_selected)
+        layout.addWidget(self.item_table)
+
+        layout.addWidget(QLabel('\n🛡️ Current Equipment (editable):'))
+        self.equipment_table = QTableWidget()
+        self.equipment_table.setColumnCount(7)
+        self.equipment_table.setHorizontalHeaderLabels(['Equip Slot', 'Item ID', 'Name', 'Durability', 'Quality', 'New', 'Stolen'])
+        self.equipment_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.equipment_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.equipment_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.equipment_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        self.equipment_table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents)
+        self.equipment_table.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeToContents)
+        self.equipment_table.horizontalHeader().setSectionResizeMode(6, QHeaderView.ResizeToContents)
+        self.equipment_table.setMinimumHeight(220)
+        self.equipment_table.cellClicked.connect(self.on_equipment_row_selected)
+        layout.addWidget(self.equipment_table)
+
+        equipment_tip = QLabel(
+            'Click an equipped item row to target it for database renaming. Durability/quality edits here are written back into the active equipment payload and then propagated across the save bundle.'
+        )
+        equipment_tip.setWordWrap(True)
+        equipment_tip.setStyleSheet('color: #8b949e; font-style: italic;')
+        layout.addWidget(equipment_tip)
+
+        layout.addWidget(QLabel('\n📦 Inventory Preview:'))
+        self.inventory_text = QTextEdit()
+        self.inventory_text.setReadOnly(True)
+        self.inventory_text.setMaximumHeight(220)
+        layout.addWidget(self.inventory_text)
+
+        btn_layout = QHBoxLayout()
+        self.edit_item_btn = QPushButton('✏️ Rename Selected / Equipped Item in DB')
+        self.edit_item_btn.clicked.connect(self.rename_item_in_database)
+        btn_layout.addWidget(self.edit_item_btn)
+        self.add_item_btn = QPushButton('➕ Add Item')
+        self.add_item_btn.clicked.connect(self.add_inventory_item)
+        btn_layout.addWidget(self.add_item_btn)
+        self.remove_item_btn = QPushButton('🗑️ Remove Item')
+        self.remove_item_btn.clicked.connect(self.remove_inventory_item)
+        btn_layout.addWidget(self.remove_item_btn)
+        btn_layout.addStretch()
+        layout.addLayout(btn_layout)
+
+        info_label = QLabel('💡 Equipment slot names now map to the in-game paper doll: Mainhand, Offhand, Head, Amulet, Chest, Relic, Belt, Legs, 1st Ring, 2nd Ring.')
+        info_label.setWordWrap(True)
+        info_label.setStyleSheet('color: #8b949e; font-style: italic;')
+        layout.addWidget(info_label)
+
+        return widget
+
+    def _render_inventory_preview_text(self, npc: Dict[str, Any]) -> str:
+        equips = npc.get('equips', [])
+        items = npc.get('items', [])
+        text = '=== EQUIPMENT ===\n\n'
+        for i, item in enumerate(equips):
+            slot_name = self._equipment_slot_name(i)
+            if item:
+                item_id = item.get('id', 0)
+                item_name = self.item_db.get_item_name(item_id)
+                durability = item.get('durability', 0)
+                max_durability = item.get('maxDurability', item.get('max_durability', item.get('durabilityMax', item.get('durabilityMaxValue', None))))
+                quality = item.get('quality', 0)
+                text += f"{slot_name} (Slot {i}): [{item_id}] {item_name}\n"
+                if max_durability is not None:
+                    text += f"  Durability: {durability}/{max_durability} | Quality: {quality}\n\n"
+                else:
+                    text += f"  Durability: {durability} | Quality: {quality}\n\n"
+            else:
+                text += f'{slot_name} (Slot {i}): [Empty]\n\n'
+        text += '\n=== INVENTORY ===\n\n'
+        for i, item in enumerate(items):
+            if item:
+                item_id = item.get('id', 0)
+                item_name = self.item_db.get_item_name(item_id)
+                stack = item.get('stackNum', 1)
+                durability = item.get('durability', 0)
+                quality = item.get('quality', 0)
+                text += f"Slot {i}: [{item_id}] {item_name} (x{stack})\n"
+                text += f"  Durability: {durability} | Quality: {quality}\n\n"
+            else:
+                text += f'Slot {i}: [Empty]\n\n'
+        return text
+
+    def populate_inventory(self, npc: Dict):
+        self.inventory_text.setText(self._render_inventory_preview_text(npc))
+
+        equips = npc.get('equips', [])
+        self._populating_equipment_table = True
+        self.equipment_editor_row_map = {}
+        self.equipment_table.setRowCount(len(equips))
+
+        for row, item in enumerate(equips):
+            self.equipment_editor_row_map[row] = row
+            slot_item = QTableWidgetItem(self._equipment_slot_name(row))
+            slot_item.setFlags(slot_item.flags() & ~Qt.ItemIsEditable)
+            self.equipment_table.setItem(row, 0, slot_item)
+
+            if item and isinstance(item, dict):
+                item_id = int(item.get('id', 0))
+                item_name = self.item_db.get_item_name(item_id)
+                id_item = QTableWidgetItem(str(item_id))
+                id_item.setFlags(id_item.flags() & ~Qt.ItemIsEditable)
+                name_item = QTableWidgetItem(item_name)
+                name_item.setFlags(name_item.flags() & ~Qt.ItemIsEditable)
+                self.equipment_table.setItem(row, 1, id_item)
+                self.equipment_table.setItem(row, 2, name_item)
+
+                durability = QDoubleSpinBox()
+                durability.setDecimals(3)
+                durability.setRange(0.0, 999999.0)
+                durability.setSingleStep(1.0)
+                durability.setValue(float(item.get('durability', 0)))
+                durability.valueChanged.connect(self.on_equipment_editor_changed)
+                self.equipment_table.setCellWidget(row, 3, durability)
+
+                quality = QSpinBox()
+                quality.setRange(0, 999999)
+                quality.setValue(int(item.get('quality', 0)))
+                quality.valueChanged.connect(self.on_equipment_editor_changed)
+                self.equipment_table.setCellWidget(row, 4, quality)
+
+                is_new = QCheckBox()
+                is_new.setChecked(bool(item.get('isNew', False)))
+                is_new.stateChanged.connect(self.on_equipment_editor_changed)
+                new_holder = QWidget()
+                new_holder_layout = QHBoxLayout(new_holder)
+                new_holder_layout.setContentsMargins(6, 0, 6, 0)
+                new_holder_layout.addWidget(is_new)
+                new_holder_layout.addStretch()
+                self.equipment_table.setCellWidget(row, 5, new_holder)
+
+                stolen = QSpinBox()
+                stolen.setRange(0, 999999)
+                stolen.setValue(int(item.get('isStolen', 0)))
+                stolen.valueChanged.connect(self.on_equipment_editor_changed)
+                self.equipment_table.setCellWidget(row, 6, stolen)
+            else:
+                for col, value in [(1, ''), (2, '[Empty]')]:
+                    cell = QTableWidgetItem(value)
+                    cell.setFlags(cell.flags() & ~Qt.ItemIsEditable)
+                    self.equipment_table.setItem(row, col, cell)
+                for col in (3, 4, 5, 6):
+                    empty_cell = QTableWidgetItem('')
+                    empty_cell.setFlags(empty_cell.flags() & ~Qt.ItemIsEditable)
+                    self.equipment_table.setItem(row, col, empty_cell)
+        self._populating_equipment_table = False
+
+    def on_equipment_row_selected(self, row: int, _column: int):
+        item_id_item = self.equipment_table.item(row, 1)
+        name_item = self.equipment_table.item(row, 2)
+        slot_item = self.equipment_table.item(row, 0)
+        if item_id_item is None or name_item is None or slot_item is None:
+            return
+        item_id_text = item_id_item.text().strip()
+        if not item_id_text:
+            self.selected_item_id = None
+            self.terminal.log_warning(f'Equipment slot {slot_item.text()} is empty')
+            return
+        try:
+            item_id = int(item_id_text)
+        except ValueError:
+            return
+        self.selected_item_id = item_id
+        self.item_search.setText(str(item_id))
+        self.search_items(str(item_id))
+        if self.item_table.rowCount() > 0:
+            self.item_table.selectRow(0)
+        self.terminal.log_info(f"Selected equipped item from {slot_item.text()}: [{item_id}] {name_item.text()}")
+
+    def rename_item_in_database(self):
+        if not hasattr(self, 'selected_item_id') or self.selected_item_id is None:
+            self.terminal.log_warning('No item selected')
+            QMessageBox.warning(
+                self,
+                'No Item Selected',
+                'Click an equipped item row or a search result first, then use Rename Item in DB.'
+            )
+            return
+        return super().rename_item_in_database()
+
+
 # ==============================================================================
 # MAIN ENTRY POINT
 # ==============================================================================
@@ -4535,7 +4764,7 @@ if __name__ == "__main__":
     app.setApplicationName(EDITOR_NAME)
     app.setApplicationVersion(EDITOR_VERSION)
 
-    window = PatchedSaveGameEditorV49()
+    window = PatchedSaveGameEditorV50()
     window.show()
 
     sys.exit(app.exec())
