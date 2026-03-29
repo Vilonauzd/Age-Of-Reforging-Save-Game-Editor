@@ -8,6 +8,7 @@
 
 [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Contributing](#-contributing)
 
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/b15631ad-3145-459c-aeb6-051fb10d13e9" />
 
 ---
 
